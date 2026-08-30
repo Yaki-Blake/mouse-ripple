@@ -10,16 +10,13 @@
 shuibo/
 ├── webgl-ripples.js   # 核心库（改造自 jQuery Ripples v0.0.1，已去除 jQuery 依赖）
 ├── bg-datauri.js      # 自动生成的背景图 data URI（desktop / mobile 两张 JPEG）
-├── index.html         # 可运行示例，同时作为 GitHub Pages 页面
 ├── README.md
 └── LICENSE
 ```
 
 ## 在线预览
 
-GitHub Pages：**https://yiwei668.github.io/web-/**
-
-页面来源设置为 `main` 分支的根目录后，直接访问上面的地址即可看到涟漪效果（`index.html` 即演示页）。
+GitHub Pages：https://yiwei668.github.io/web-
 
 ## 快速开始
 
