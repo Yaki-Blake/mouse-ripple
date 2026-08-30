@@ -10,6 +10,7 @@
 shuibo/
 ├── webgl-ripples.js   # 核心库（改造自 jQuery Ripples v0.0.1，已去除 jQuery 依赖）
 ├── bg-datauri.js      # 自动生成的背景图 data URI（desktop / mobile 两张 JPEG）
+├── index.html         # GitHub Pages 在线预览页面
 ├── README.md
 └── LICENSE
 ```
