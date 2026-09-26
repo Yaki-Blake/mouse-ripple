@@ -17,7 +17,7 @@ shuibo/
 
 ## 在线预览
 
-GitHub Pages：https://yiwei668.github.io/web-
+GitHub Pages：https://yaki-blake.github.io/mouse-ripple/
 
 ## 快速开始
 
