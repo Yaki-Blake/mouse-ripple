@@ -240,6 +240,10 @@ var Ripples = function (el, options) {
 	this.perturbance = options.perturbance;
 	this.dropRadius = options.dropRadius;
 
+	// Simulation parameters (defaults keep the original hardcoded behavior).
+	this.speed = options.speed;
+	this.damping = options.damping;
+
 	this.crossOrigin = options.crossOrigin;
 	this.imageUrl = options.imageUrl;
 
@@ -343,7 +347,9 @@ Ripples.DEFAULTS = {
 	dropRadius: 20,
 	perturbance: 0.03,
 	interactive: true,
-	crossOrigin: ''
+	crossOrigin: '',
+	speed: 2,      // ripple propagation speed (was hardcoded 2.0 in the shader)
+	damping: 0.985 // ripple decay factor (was hardcoded 0.985 in the shader)
 };
 
 Ripples.prototype = {
@@ -509,6 +515,8 @@ Ripples.prototype = {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffers[this.bufferWriteIndex]);
 		bindTexture(this.textures[this.bufferReadIndex]);
 		gl.useProgram(this.updateProgram.id);
+		gl.uniform1f(this.updateProgram.locations.speed, this.speed);
+		gl.uniform1f(this.updateProgram.locations.damping, this.damping);
 
 		this.drawQuad();
 
@@ -672,6 +680,8 @@ Ripples.prototype = {
 
 			'uniform sampler2D texture;',
 			'uniform vec2 delta;',
+			'uniform float speed;',
+			'uniform float damping;',
 
 			'varying vec2 coord;',
 
@@ -688,8 +698,8 @@ Ripples.prototype = {
 					'texture2D(texture, coord + dy).r',
 				') * 0.25;',
 
-				'info.g += (average - info.r) * 2.0;',
-				'info.g *= 0.985;',
+				'info.g += (average - info.r) * speed;',
+				'info.g *= damping;',
 				'info.r += info.g;',
 
 				'gl_FragColor = info;',
@@ -887,6 +897,8 @@ Ripples.prototype = {
 			case 'perturbance':
 			case 'interactive':
 			case 'crossOrigin':
+			case 'speed':
+			case 'damping':
 				this[property] = value;
 				break;
 			case 'imageUrl':
