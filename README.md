@@ -1,3 +1,5 @@
+**简体中文** | [English](README_EN.md)
+
 # 鼠标涟漪 / Mouse Ripples
 
 可以一键让你的鼠标在前端活动时加上涟漪效果
