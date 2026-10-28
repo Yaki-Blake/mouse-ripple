@@ -1,3 +1,14 @@
-.workbuddy-ai/
-shuibo-params.json
+# Python
+__pycache__/
+*.pyc
+
+# 工作区记忆（本地保留，不入库）
+.workbuddy/
+
+# 注入器产生的备份
 *.bak
+*.bak.*
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
