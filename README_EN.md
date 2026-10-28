@@ -15,7 +15,7 @@ mouse-ripple/
 ├── index.html             Demo page (inlined engine + background image); also the Pages landing page
 ├── ripple-inject.py       Injector: scan → pick files manually → write into the target project
 ├── 双击注入.bat           Windows launcher
-├── src/ripple-engine.js   Engine source, 937 lines (the single source of truth)
+├── src/ripple-engine.js   Engine source, 958 lines (the single source of truth)
 ├── LICENSE                MIT license of the upstream engine, sirxemic
 └── .nojekyll              Tells Pages not to run Jekyll, publishing files as-is
 ```
@@ -39,6 +39,7 @@ Note: the operation automatically produces backup files — `.bak`. Copy them ba
 1. `dropProgram`: writes a cosine-shaped crest at the pointer position (amplitude = `strength`, radius = `radius`).
 2. `updateProgram`: integrates the discrete wave equation by averaging the four neighbouring samples (up, down, left, right); velocity is multiplied by 0.985 each frame to decay.
 3. `renderProgram`: derives normals from the height-field gradient, offsets the background texture sampling coordinates to produce refraction, then overlays a specular highlight.
+   Highlight intensity scales with crest slope, so ripples stay visible over flat or dark areas (pure refraction only differs where the background has detail).
 
 The height field is a 256×256 floating-point texture with double buffering for alternating read and write; the canvas size and background UVs are back-calculated from `background-size / position`.
 

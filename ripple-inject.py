@@ -59,7 +59,7 @@ BOOT_SIGNATURE = "__MOUSE_RIPPLE_BOOTED__"        # 初始化已存在
 # ---------------------------------------------------------------------------
 # 引擎：WebGL 涟漪模拟（由 src/ripple-engine.js 内联，勿手改）
 # ---------------------------------------------------------------------------
-ENGINE_JS = r'''/**
+ENGINE_JS = r'''//**
  * ripple-engine.js —— 鼠标涟漪引擎（WebGL 波浪模拟）
  * 唯一真源：index.html 与 ripple-inject.py 都由本文件内联生成。
  *
@@ -341,6 +341,15 @@ var Ripples = function (el, options) {
 	this.element.append(this.canvas);
 
 	this.context = gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+	// 没有 WebGL 时原实现会在下面的 gl.getExtension 处抛 TypeError，整段脚本静默失败，
+	// 页面只剩一张静态背景 —— 看起来就是「涟漪坏了」。这里显式报错并留下标记，
+	// 页面可用 html[data-ripples="unsupported"] 展示提示。
+	if (!gl) {
+		console.error('[ripples] 无法创建 WebGL 上下文：浏览器未启用硬件加速，或被显卡黑名单/企业策略禁用，涟漪无法渲染。');
+		document.documentElement.setAttribute('data-ripples', 'unsupported');
+		return;
+	}
 
 	// Load extensions
 	config.extensions.forEach(function(name) {
@@ -823,11 +832,23 @@ Ripples.prototype = {
 				'float height = texture2D(samplerRipples, ripplesCoord).r;',
 				'float heightX = texture2D(samplerRipples, vec2(ripplesCoord.x + delta.x, ripplesCoord.y)).r;',
 				'float heightY = texture2D(samplerRipples, vec2(ripplesCoord.x, ripplesCoord.y + delta.y)).r;',
-				'vec3 dx = vec3(delta.x, heightX - height, 0.0);',
-				'vec3 dy = vec3(0.0, heightY - height, delta.y);',
+				'float gx = heightX - height;',
+				'float gy = heightY - height;',
+				'vec3 dx = vec3(delta.x, gx, 0.0);',
+				'vec3 dy = vec3(0.0, gy, delta.y);',
 				'vec2 offset = -normalize(cross(dy, dx)).xz;',
 				'float specular = pow(max(0.0, dot(offset, normalize(vec2(-0.6, 1.0)))), 4.0);',
-				'gl_FragColor = texture2D(samplerBackground, backgroundCoord + offset * perturbance) + specular;',
+
+				// 坡度 = 相邻纹理格的高度差，归一化到「每格」后与分辨率无关。
+				// 纯折射（原实现）只在背景存在高频细节处产生可见差异：位移方向被 normalize
+				// 成单位向量、幅度恒为 perturbance，落在纯色/深色区域时像素差为 0，
+				// 表现为「点了没反应」。这里补一层随坡度增强的镜面提亮，让波峰在纯色区域也可见。
+				'float slope = length(vec2(gx, gy)) / delta.x;',
+				'float crest = 1.0 - exp(-slope * 0.28);',
+
+				'vec3 color = texture2D(samplerBackground, backgroundCoord + offset * perturbance).rgb;',
+				'color += specular * (0.30 + 0.70 * crest) + vec3(0.40, 0.55, 0.70) * crest * 0.55;',
+				'gl_FragColor = vec4(color, 1.0);',
 			'}'
 		].join('\n'));
 		gl.uniform2fv(this.renderProgram.locations.delta, this.textureDelta);

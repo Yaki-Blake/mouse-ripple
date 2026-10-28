@@ -15,7 +15,7 @@ mouse-ripple/
 ├── index.html             演示页（内联引擎 + 背景图），也是 Pages 首页
 ├── ripple-inject.py       注入器：扫描 → 手选 → 写入目标项目
 ├── 双击注入.bat           Windows 启动器
-├── src/ripple-engine.js   引擎源码，937 行（唯一真源）
+├── src/ripple-engine.js   引擎源码，958 行（唯一真源）
 ├── LICENSE                引擎上游 sirxemic 的 MIT 许可
 └── .nojekyll              告诉 Pages 不要跑 Jekyll，原样发布
 ```
@@ -38,7 +38,8 @@ mouse-ripple/
 
 1. `dropProgram`：在指针处写入余弦形波峰（振幅 = strength，半径 = radius）。
 2. `updateProgram`：取上下左右四点均值做离散波动方程积分，速度每帧乘 0.985 衰减。
-3. `renderProgram`：用高度场梯度求法线，偏移背景纹理的采样位置得到折射，再叠一层镜面高光。
+3. `renderProgram`：用高度场梯度求法线，偏移背景纹理的采样位置得到折射，再叠一层镜面高光；
+   高光强度随波峰坡度增长，保证涟漪在纯色、深色区域同样看得见（纯折射只在背景有细节处产生差异）。
 
 高度场是 256×256 浮点纹理，双缓冲交替读写；画布尺寸与背景 UV 由 `background-size / position` 反算。
 
